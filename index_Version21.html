@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Neon Initials - A & B</title>
+<style>
+body {
+  margin: 0;
+  background: #000;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+#initials-svg {
+  width: 1200px;
+  height: 512px;
+}
+</style>
+</head>
+<body>
+<svg id="initials-svg" viewBox="0 0 1200 512">
+  <defs>
+    <filter id="neonPurple" x="-100%" y="-100%" width="300%" height="300%">
+      <!-- Strong neon glow -->
+      <feDropShadow dx="0" dy="0" stdDeviation="2" flood-color="#a020f0" flood-opacity="0.9"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#d580ff" flood-opacity="0.7"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#d580ff" flood-opacity="0.5"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#d580ff" flood-opacity="0.3"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="16" flood-color="#d580ff" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+
+  <g transform="translate(150,0)">
+    <!-- Original A path -->
+    <path
+      id="a-path"
+      d="M256 40 L420 472 H360 L315 360 H197 L152 472 H92 L256 40 Z M228 300 H284 L256 230 L228 300 Z"
+      fill="none"
+      stroke="#a020f0"
+      stroke-width="10"
+      filter="url(#neonPurple)"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+
+    <!-- B path -->
+    <path
+      id="b-path"
+      d="M520 40 H680 Q760 40 760 150 Q760 210 710 235 Q760 260 760 330 Q760 420 680 472 H520 Z
+         M580 110 V200 H660 Q700 200 700 155 Q700 110 660 110 Z
+         M580 260 V400 H670 Q710 400 710 330 Q710 260 670 260 Z"
+      fill="none"
+      stroke="#a020f0"
+      stroke-width="10"
+      filter="url(#neonPurple)"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </g>
+</svg>
+
+<script>
+function drawThenErase(pathId, drawDuration = 1400, stayDuration = 1000, eraseDuration = 500) {
+  const path = document.getElementById(pathId);
+  const length = path.getTotalLength();
+  path.style.strokeDasharray = length;
+  path.style.strokeDashoffset = length;
+
+  // Draw the path
+  let start = null;
+  function draw(ts) {
+    if (!start) start = ts;
+    let progress = Math.min((ts - start) / drawDuration, 1);
+    path.style.strokeDashoffset = length * (1 - progress);
+    if (progress < 1) {
+      requestAnimationFrame(draw);
+    } else {
+      // Wait for stayDuration, then erase
+      setTimeout(() => {
+        erasePath(path, length, eraseDuration);
+      }, stayDuration);
+    }
+  }
+  requestAnimationFrame(draw);
+}
+
+function erasePath(path, length, duration) {
+  let start = null;
+  function erase(ts) {
+    if (!start) start = ts;
+    let progress = Math.min((ts - start) / duration, 1);
+    path.style.strokeDashoffset = length * progress;
+    if (progress < 1) {
+      requestAnimationFrame(erase);
+    }
+  }
+  requestAnimationFrame(erase);
+}
+
+// Draw both letters simultaneously, then erase after 1s of being fully drawn
+drawThenErase('a-path', 1400, 1000, 500);
+drawThenErase('b-path', 1400, 1000, 500);
+</script>
+</body>
+</html>
